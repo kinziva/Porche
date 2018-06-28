@@ -16,11 +16,13 @@ public class PorscheCheckout {
 
 		WebDriver driver = new ChromeDriver();
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-
+		driver.manage().window().fullscreen();
 		driver.get("https://www.porsche.com/usa/modelstart/");
 		driver.findElement(By.partialLinkText("718")).click();
 		String price = driver.findElement(By.className("m-14-model-price")).getText();
 
+		// double caymanPrice2 = ConverttoDouble(price);
+		// System.out.println(caymanPrice2);
 		double caymanPrice = Double.parseDouble(price.replace(",", "").substring(7, 15));
 		System.out.println(caymanPrice); // 4
 
@@ -37,14 +39,11 @@ public class PorscheCheckout {
 		String handle = driver.getWindowHandle();
 
 		// price at the second window
-		String basePrice2 = driver.findElement(By.xpath("//*[@id=\"s_price\"]/div[1]/div[1]/div[2]")).getText();
-		double basePrice2d = Double.parseDouble(price.replace(",", "").substring(7, 15));
 
+		String basePrice2 = driver.findElement(By.xpath("//section[@id='s_price']//div[@class='ccaPrice'][contains(text(),\"$56\")]")).getText();
+		System.out.println("Base price at second page: " +basePrice2);
+		double basePrice2d = Double.parseDouble(basePrice2.replace(",", "").replace("$", ""));
 		System.out.println(basePrice2d);
-
-		// price at the second window without handles
-		// String priceInNewPageText =
-		// driver.findElement(By.xpath("(//div[@id='model-result-row']//div[@class='m-14-model-price'])[1]")).getText();
 
 		// 6
 		if (caymanPrice == basePrice2d) {
@@ -82,7 +81,9 @@ public class PorscheCheckout {
 		}
 
 		// 9. Select color “Miami Blue”
-		driver.findElement(By.id("s_exterieur_x_FJ5")).click();
+		
+		driver.findElement(By.xpath("//li[@id='s_exterieur_x_FJ5']")).click();
+		//driver.findElement(By.id("s_exterieur_x_FJ5")).click();
 
 		// 10.Verify that Price for Equipment is Equal to Miami Blue price
 		priceforEquipment = driver.findElement(By.xpath("//*[@id=\'s_price\']/div[1]/div[2]/div[2]")).getText();
@@ -164,6 +165,7 @@ public class PorscheCheckout {
 				By.xpath("//*[@id=\"submenu_individualization_x_individual_submenu_x_submenu_parent\"]/span")).click();// Options
 		Thread.sleep(3000);
 		driver.findElement(By.xpath("//*[@id=\"submenu_individualization_x_individual_submenu_x_IIC\"]/a")).click(); // Interior
+																														// //
 																														// Carbon
 																														// Fiber
 		Thread.sleep(1000);
@@ -189,61 +191,56 @@ public class PorscheCheckout {
 		System.out.println("Total price with carbon fiber interior " + totalpricewithWheelsd);
 
 		// 22.Click on Performance
-		driver.findElement(By.xpath("//*[@id=\"s_conf_submenu\"]/div/div")).click(); //Overview
+		driver.findElement(By.xpath("//*[@id=\"s_conf_submenu\"]/div/div")).click(); // Overview
 		Thread.sleep(1000);
-		driver.findElement(By.xpath("//*[@id=\"submenu_individualization_x_individual_submenu_x_IMG\"]/a")).click();//performance
+		driver.findElement(By.xpath("//*[@id=\"submenu_individualization_x_individual_submenu_x_IMG\"]/a")).click();// performance
 		Thread.sleep(1000);
 		// 23.Select 7-speed Porsche Doppelkupplung (PDK)
 		driver.findElement(By.xpath("//*[@id=\"vs_table_IMG_x_M250_x_c11_M250\"]")).click();
-		
+
 		String doppelkupplung = driver.findElement(By.xpath("//*[@id=\"vs_table_IMG_x_M250\"]/div[1]/div[2]/div"))
 				.getText();
 		double doppelkupplungd = Double.parseDouble(doppelkupplung.replace("$", "").replace(",", ""));
 		priceforEquipmentd += doppelkupplungd;
 
-		
-		
-		//24.Select Porsche Ceramic Composite Brakes (PCCB)
+		// 24.Select Porsche Ceramic Composite Brakes (PCCB)
 		driver.findElement(By.xpath("//*[@id=\"search_x_inp\"]")).sendKeys("porsche ceramic"); // how?
-        driver.findElement(By.xpath("//*[@id=\"search_x_M450_x_c94_M450_x_shorttext\"]")).click();
-      
-        
-        String brakes= driver.findElement(By.xpath("//*[@id=\"vs_table_IMG_x_M450\"]/div[1]/div[2]/div"))
-				.getText();
+		driver.findElement(By.xpath("//*[@id=\"search_x_M450_x_c94_M450_x_shorttext\"]")).click();
+
+		String brakes = driver.findElement(By.xpath("//*[@id=\"vs_table_IMG_x_M450\"]/div[1]/div[2]/div")).getText();
 		double brakesd = Double.parseDouble(brakes.replace("$", "").replace(",", ""));
 		priceforEquipmentd += brakesd;
 
-		
-//        25.Verify that Price for Equipment is the sum of Miami Blue price + 20" Carrera Sport
-//        Wheels + Power Sport Seats (14-way) with Memory Package + Interior Trim in
-//        Carbon Fiber i.c.w. Standard Interior + 7-speed Porsche Doppelkupplung (PDK) +
-//        Porsche Ceramic Composite Brakes (PCCB)
-		
-		
-	    String finalEquipment= driver.findElement(By.xpath("//*[@id=\"s_price\"]/div[1]/div[2]/div[2]"))
-					.getText();
-			double finalEquipmentd = Double.parseDouble(finalEquipment.replace("$", "").replace(",", ""));
-			
+		// 25.Verify that Price for Equipment is the sum of Miami Blue price + 20"
+		// Carrera Sport
+		// Wheels + Power Sport Seats (14-way) with Memory Package + Interior Trim in
+		// Carbon Fiber i.c.w. Standard Interior + 7-speed Porsche Doppelkupplung (PDK)
+		// +
+		// Porsche Ceramic Composite Brakes (PCCB)
+
+		String finalEquipment = driver.findElement(By.xpath("//*[@id=\"s_price\"]/div[1]/div[2]/div[2]")).getText();
+		double finalEquipmentd = Double.parseDouble(finalEquipment.replace("$", "").replace(",", ""));
+
 		if (priceforEquipmentd == finalEquipmentd) {
 			System.out.println("Final Equipment Price is equal to the total: " + priceforEquipmentd);
 		} else {
-			System.out.println(
-					"Final Equipment is not equal to: " + finalEquipmentd);
+			System.out.println("Final Equipment is not equal to: " + finalEquipmentd);
 		}
-//        26.Verify that total price is the sum of base price + Price for Equipment + Delivery,
-//        Processing and Handling Fee
-		
-		totalpricewithWheelsd+= (brakesd + doppelkupplungd);
-		
+		// 26.Verify that total price is the sum of base price + Price for Equipment +
+		// Delivery,
+		// Processing and Handling Fee
+
+		totalpricewithWheelsd += (brakesd + doppelkupplungd);
 		if (totalpricewithWheelsd == totalpricewithWheelsd) {
 			System.out.println("Final Price is equal to the total: " + totalpricewithWheelsd);
 		} else {
-			System.out.println(
-					"Final is not equal to: " + totalpricewithWheelsd);
+			System.out.println("Final is not equal to: " + totalpricewithWheelsd);
 		}
-		
-	driver.close();
-
+		driver.close();
 	}
 
+	public static double ConverttoDouble(String s) {
+		double dbl = Double.parseDouble(s.replace(",", "").replace("$", ""));
+		return dbl;
+	}
 }
